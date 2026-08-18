@@ -1,0 +1,23 @@
+{
+  "name": "webpage-autologin",
+  "version": "1.0.0",
+  "description": "Chrome 扩展 (Manifest V3) - 自动填写登录表单并提交，支持多站点配置、自定义 CSS 选择器、协议勾选",
+  "private": true,
+  "scripts": {
+    "prepare": "echo 本项目无构建步骤,直接加载到 Chrome 即可"
+  },
+  "devDependencies": {
+    "sharp": "^0.35.3"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:vee2046/webpage-autologin.git"
+  },
+  "keywords": [
+    "chrome-extension",
+    "manifest-v3",
+    "auto-login",
+    "form-filler"
+  ],
+  "license": "MIT"
+}

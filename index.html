@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Auto Login Helper - Chrome Extension</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #f0f2f5;
+      color: #1f2937;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .container {
+      max-width: 640px;
+      width: 100%;
+      padding: 20px;
+    }
+    .card {
+      background: white;
+      border-radius: 16px;
+      padding: 40px;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+    }
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+    .header img {
+      width: 64px;
+      height: 64px;
+      border-radius: 12px;
+    }
+    .header h1 {
+      font-size: 24px;
+      font-weight: 700;
+    }
+    .header p {
+      color: #6b7280;
+      font-size: 14px;
+      margin-top: 4px;
+    }
+    .steps {
+      margin-bottom: 32px;
+    }
+    .steps h2 {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 16px;
+      color: #374151;
+    }
+    .step {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 14px;
+      align-items: flex-start;
+    }
+    .step-num {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: #4f6ef7;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 600;
+      flex-shrink: 0;
+    }
+    .step-text {
+      font-size: 14px;
+      line-height: 1.6;
+      padding-top: 3px;
+    }
+    .step-text code {
+      background: #f3f4f6;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 13px;
+      color: #4f6ef7;
+    }
+    .features {
+      border-top: 1px solid #e5e7eb;
+      padding-top: 24px;
+    }
+    .features h2 {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 12px;
+      color: #374151;
+    }
+    .feature-list {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+    .feature-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      color: #6b7280;
+    }
+    .feature-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #4f6ef7;
+      flex-shrink: 0;
+    }
+    .download-section {
+      margin-top: 24px;
+      text-align: center;
+    }
+    .download-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 28px;
+      background: #4f6ef7;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      transition: background 0.2s;
+    }
+    .download-btn:hover {
+      background: #3d5ce5;
+    }
+    .note {
+      margin-top: 16px;
+      padding: 12px 16px;
+      background: #fefce8;
+      border: 1px solid #fde68a;
+      border-radius: 8px;
+      font-size: 12px;
+      color: #92400e;
+      line-height: 1.5;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="card">
+      <div class="header">
+        <img src="icons/icon128.png" alt="icon">
+        <div>
+          <h1>Auto Login Helper</h1>
+          <p>Chrome 自动登录插件 - 配置一次，自动登录</p>
+        </div>
+      </div>
+
+      <div class="steps">
+        <h2>安装步骤</h2>
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-text">下载本项目所有文件到本地文件夹</div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-text">打开 Chrome 浏览器，访问 <code>chrome://extensions/</code></div>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div class="step-text">开启右上角「开发者模式」</div>
+        </div>
+        <div class="step">
+          <div class="step-num">4</div>
+          <div class="step-text">点击「加载已解压的扩展程序」，选择项目文件夹</div>
+        </div>
+        <div class="step">
+          <div class="step-num">5</div>
+          <div class="step-text">点击工具栏插件图标，配置站点信息即可</div>
+        </div>
+      </div>
+
+      <div class="features">
+        <h2>功能特性</h2>
+        <div class="feature-list">
+          <div class="feature-item"><div class="feature-dot"></div>多站点配置管理</div>
+          <div class="feature-item"><div class="feature-dot"></div>自动填写用户名密码</div>
+          <div class="feature-item"><div class="feature-dot"></div>自动点击登录按钮</div>
+          <div class="feature-item"><div class="feature-dot"></div>协议复选框自动勾选</div>
+          <div class="feature-item"><div class="feature-dot"></div>自定义 CSS 选择器</div>
+          <div class="feature-item"><div class="feature-dot"></div>URL 通配符匹配</div>
+          <div class="feature-item"><div class="feature-dot"></div>兼容 React/Vue 框架</div>
+          <div class="feature-item"><div class="feature-dot"></div>启用/禁用一键切换</div>
+        </div>
+      </div>
+
+      <div class="download-section">
+        <div class="note">
+          本插件仅在本地浏览器运行，所有数据存储在 Chrome 本地存储中，不会上传到任何服务器。请妥善保管你的密码配置。
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
