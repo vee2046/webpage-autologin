@@ -29,6 +29,9 @@
   const emptyStateEl = $('#emptyState');
   const siteCountEl = $('#siteCount');
   const btnTestCurrent = $('#btnTestCurrent');
+  const btnImport = $('#btnImport');
+  const btnExport = $('#btnExport');
+  const importFileInput = $('#importFileInput');
 
   // Modal
   const modalOverlay = $('#modalOverlay');
@@ -41,6 +44,7 @@
 
   // Confirm
   const confirmOverlay = $('#confirmOverlay');
+  const confirmText = $('#confirmText');
   const btnConfirmCancel = $('#btnConfirmCancel');
   const btnConfirmDelete = $('#btnConfirmDelete');
 
@@ -61,6 +65,7 @@
   // ========== State ==========
   let sites = [];
   let deleteTargetId = null;
+  let pendingImportSites = null; // 导入确认时暂存待写入的站点数组
 
   // 串行化所有写入操作,防止 PBKDF2 慢路径下两次写互相覆盖。
   // 每次 saveSites 都接到队列尾部,确保上一个写完才执行下一个。
@@ -333,9 +338,16 @@
   function closeConfirm() {
     confirmOverlay.classList.remove('active');
     deleteTargetId = null;
+    pendingImportSites = null;
+    btnConfirmDelete.textContent = '删除';
   }
 
   function handleDelete() {
+    // 导入确认复用同一个 confirm overlay,优先处理
+    if (pendingImportSites) {
+      confirmImport();
+      return;
+    }
     if (deleteTargetId) {
       sites = sites.filter((s) => s.id !== deleteTargetId);
       saveSites().catch(() => { /* toast 已在 saveSites 内 */ });
@@ -354,6 +366,104 @@
         showToast('执行失败: ' + (res?.error || '未知错误'), 'error');
       }
     });
+  }
+
+  // ========== Import / Export ==========
+  // 导出当前所有站点为 JSON 文件。密码以解密后的明文形式写入文件 -
+  // 用户既然选择导出就承担了文件保管的责任。
+  async function handleExport() {
+    if (sites.length === 0) {
+      showToast('当前没有可导出的站点', 'error');
+      return;
+    }
+    // sites 已经是 UI 视图层对象 (密码明文),直接序列化即可
+    const payload = {
+      version: 1,
+      exportedAt: new Date().toISOString(),
+      sites: sites.map((s) => {
+        // 去掉 UI 专用的 broken 标记
+        const { broken, ...rest } = s;
+        return rest;
+      }),
+    };
+    const json = JSON.stringify(payload, null, 2);
+    const blob = new Blob([json], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    const date = new Date().toISOString().slice(0, 10);
+    a.href = url;
+    a.download = `webpage-autologin-sites-${date}.json`;
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    showToast(`已导出 ${sites.length} 个站点`, 'success');
+  }
+
+  function handleImport() {
+    // 清空 value,确保同一文件再次选择也能触发 change
+    importFileInput.value = '';
+    importFileInput.click();
+  }
+
+  async function handleImportFile(file) {
+    if (!file) return;
+    let text;
+    try {
+      text = await file.text();
+    } catch (e) {
+      showToast('读取文件失败: ' + e.message, 'error');
+      return;
+    }
+
+    let parsed;
+    try {
+      parsed = JSON.parse(text);
+    } catch (e) {
+      showToast('JSON 解析失败: ' + e.message, 'error');
+      return;
+    }
+
+    if (!parsed || typeof parsed !== 'object' || !Array.isArray(parsed.sites)) {
+      showToast('文件格式不正确（需要包含 sites 数组）', 'error');
+      return;
+    }
+
+    const incoming = parsed.sites.filter(isValidSiteShape);
+    const skipped = parsed.sites.length - incoming.length;
+    if (incoming.length === 0) {
+      showToast('文件中没有有效的站点配置', 'error');
+      return;
+    }
+
+    // 复用现有确认弹窗做覆盖确认
+    const msg = `导入 ${incoming.length} 个站点将覆盖当前 ${sites.length} 个配置${skipped > 0 ? `（另有 ${skipped} 条无效已跳过）` : ''}，是否继续？`;
+    openImportConfirm(msg, incoming);
+  }
+
+  // 复用 confirm-overlay 来确认导入,避免新增 DOM
+  function openImportConfirm(text, incoming) {
+    pendingImportSites = incoming;
+    confirmText.textContent = text;
+    // 按钮文字临时改成"导入"
+    btnConfirmDelete.textContent = '导入';
+    confirmOverlay.classList.add('active');
+  }
+
+  async function confirmImport() {
+    if (!pendingImportSites) return;
+    const incoming = pendingImportSites;
+    pendingImportSites = null;
+    btnConfirmDelete.textContent = '删除';
+    confirmOverlay.classList.remove('active');
+
+    // 直接覆盖内存,saveSites 写入时再统一加密
+    sites = incoming.slice();
+    try {
+      await saveSites();
+      renderList();
+      showToast(`已导入 ${incoming.length} 个站点`, 'success');
+    } catch (e) {
+      showToast('导入失败，请重试', 'error');
+    }
   }
 
   // ========== Password Toggle ==========
@@ -429,6 +539,12 @@
   btnConfirmDelete.addEventListener('click', handleDelete);
   btnTogglePassword.addEventListener('click', togglePasswordVisibility);
   btnTestCurrent.addEventListener('click', testCurrentPage);
+  btnImport.addEventListener('click', handleImport);
+  btnExport.addEventListener('click', handleExport);
+  importFileInput.addEventListener('change', (e) => {
+    const file = e.target.files && e.target.files[0];
+    handleImportFile(file);
+  });
 
   // 点击遮罩关闭
   modalOverlay.addEventListener('click', (e) => {

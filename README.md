@@ -25,12 +25,44 @@ Chrome 扩展 (Manifest V3)，自动填写登录表单并提交。配置一次�
 ## 使用
 
 1. 在任意网页上点击工具栏的扩展图标
-2. 点击 popup 右上角的 **面板图标** —— 在当前页面右侧弹出拖拽式配置面板
+2. 点击 popup 右上角的 **新建图标** —— 在当前页面右侧弹出拖拽式配置面板
 3. 填写网址、用户名、密码
 4. 在选择器字段右侧点击 **「🎯 拾取」**，然后在页面上点选目标元素 —— 选择器会自动填回表单
 5. 保存。再次访问匹配的 URL 时自动登录
 
 URL 支持通配符 `*`，例如 `https://*.example.com/login`。
+
+## 导入 / 导出
+
+popup 底部提供「导入」「导出」两个按钮：
+
+- **导出** —— 把当前所有站点打包成 JSON 文件下载（密码以明文形式写入文件，请妥善保管）。文件名格式 `webpage-autologin-sites-YYYY-MM-DD.json`。
+- **导入** —— 选择一个之前导出的 JSON 文件，校验通过后**覆盖**当前所有站点（会弹出确认对话框）。无效的条目会自动跳过并在提示中告知数量。
+
+导入文件格式：
+
+```json
+{
+  "version": 1,
+  "exportedAt": "2026-09-15T08:00:00.000Z",
+  "sites": [
+    {
+      "id": "lq8h3x",
+      "url": "https://example.com/login",
+      "username": "alice",
+      "password": "plaintext-or-encrypted-object",
+      "usernameSelector": "#username",
+      "passwordSelector": "input[type='password']",
+      "loginButtonSelector": "button[type='submit']",
+      "agreementSelector": "",
+      "enabled": true,
+      "createdAt": 1694000000000
+    }
+  ]
+}
+```
+
+导入时密码字段既接受明文字符串，也接受加密对象 `{ "v": 1, "iv": "...", "ct": "..." }`；写入时会统一重新加密。
 
 ## 文件结构
 

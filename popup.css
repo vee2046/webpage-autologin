@@ -306,6 +306,12 @@ body {
   flex-shrink: 0;
 }
 
+.footer-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
 .btn-text {
   border: none;
   background: none;

@@ -18,10 +18,12 @@
         <h1>Auto Login</h1>
       </div>
       <div class="header-actions">
-        <button class="btn-side-panel" id="btnSidePanel" title="在页面上打开配置面板">
+        <button class="btn-side-panel" id="btnSidePanel" title="新建站点配置（在当前页面打开）">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
-            <line x1="15" y1="3" x2="15" y2="21"/>
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+            <polyline points="14 2 14 8 20 8"/>
+            <line x1="12" y1="13" x2="12" y2="19"/>
+            <line x1="9" y1="16" x2="15" y2="16"/>
           </svg>
         </button>
       </div>
@@ -36,14 +38,18 @@
           <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
         </svg>
         <p>暂无站点配置</p>
-        <span>点击右上角面板图标在页面上添加</span>
+        <span>点击右上角新建图标在页面上添加</span>
       </div>
     </div>
 
     <!-- 底部状态栏 -->
     <footer class="footer">
       <span id="siteCount">0 个站点</span>
-      <button class="btn-text" id="btnTestCurrent" title="在当前页面测试自动登录">测试当前页</button>
+      <div class="footer-actions">
+        <button class="btn-text" id="btnImport" title="从 JSON 文件导入站点配置">导入</button>
+        <button class="btn-text" id="btnExport" title="导出站点配置为 JSON 文件">导出</button>
+        <button class="btn-text" id="btnTestCurrent" title="在当前页面测试自动登录">测试当前页</button>
+      </div>
     </footer>
   </div>
 
@@ -141,7 +147,7 @@
   <!-- 确认删除弹窗 -->
   <div class="confirm-overlay" id="confirmOverlay">
     <div class="confirm-dialog">
-      <p class="confirm-text">确定要删除这个站点配置吗？</p>
+      <p class="confirm-text" id="confirmText">确定要删除这个站点配置吗？</p>
       <div class="confirm-actions">
         <button class="btn btn-secondary" id="btnConfirmCancel">取消</button>
         <button class="btn btn-danger" id="btnConfirmDelete">删除</button>
@@ -151,6 +157,9 @@
 
   <!-- Toast 提示 -->
   <div class="toast" id="toast"></div>
+
+  <!-- 隐藏的文件输入（导入用）-->
+  <input type="file" id="importFileInput" accept="application/json,.json" style="display:none">
 
   <script src="crypto.js"></script>
 <script src="popup.js"></script>
