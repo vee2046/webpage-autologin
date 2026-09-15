@@ -4,9 +4,12 @@
   "description": "Chrome 扩展 (Manifest V3) - 自动填写登录表单并提交，支持多站点配置、自定义 CSS 选择器、协议勾选",
   "private": true,
   "scripts": {
-    "prepare": "echo 本项目无构建步骤,直接加载到 Chrome 即可"
+    "prepare": "echo 本项目无构建步骤,直接加载到 Chrome 即可",
+    "package": "node scripts/package.js",
+    "clean": "node scripts/clean.js"
   },
   "devDependencies": {
+    "archiver": "^7.0.1",
     "sharp": "^0.35.3"
   },
   "repository": {

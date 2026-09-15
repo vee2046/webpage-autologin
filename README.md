@@ -95,7 +95,21 @@ popup 底部提供「导入」「导出」两个按钮：
 - Content Script 日志：目标页面 DevTools，筛选 `[Auto Login]`
 - Popup 日志：在 popup 图标上右键 → 「检查」
 
-依赖说明：`sharp` 仅用于图标预处理，扩展运行时不依赖。
+## 打包发布
+
+```bash
+# 安装打包依赖（仅 archiver）
+pnpm install
+
+# 生成纯净的 zip 到 dist/
+pnpm run package
+# → dist/webpage-autologin-v1.0.0.zip
+
+# 清理 dist/
+pnpm run clean
+```
+
+zip 内容只包含扩展运行所需的文件（见 `scripts/package.js` 里的 `EXTENSION_FILES` 白名单），不含 `node_modules/`、`.git/`、开发文档等。Chrome 可直接以「加载已解压的扩展程序」或「打包扩展程序」方式使用。
 
 ## License
 
