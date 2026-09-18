@@ -276,6 +276,9 @@
     fields.loginButtonSelector.value = site.loginButtonSelector;
     fields.agreementSelector.value = site.agreementSelector || '';
 
+    // 重置密码框为隐藏状态
+    resetPasswordVisibility();
+
     modalOverlay.classList.add('active');
   }
 
@@ -283,6 +286,8 @@
     modalOverlay.classList.remove('active');
     siteForm.reset();
     editIdInput.value = '';
+    // 重置密码框为隐藏状态
+    resetPasswordVisibility();
   }
 
   async function handleFormSubmit(e) {
@@ -369,22 +374,26 @@
   }
 
   // ========== Import / Export ==========
-  // 导出当前所有站点为 JSON 文件。密码以解密后的明文形式写入文件 -
-  // 用户既然选择导出就承担了文件保管的责任。
+  // 导出当前所有站点为 JSON 文件。密码加密后导出，保证文件安全。
   async function handleExport() {
     if (sites.length === 0) {
       showToast('当前没有可导出的站点', 'error');
       return;
     }
-    // sites 已经是 UI 视图层对象 (密码明文),直接序列化即可
+    // sites 在内存中是明文密码，导出前需要先加密
+    const encryptedSites = await Promise.all(
+      sites.map(async (s) => {
+        const { broken, ...rest } = s; // 去掉 UI 专用的 broken 标记
+        // 加密密码
+        const encPassword = await self.AutoLoginCrypto.encryptPassword(rest.password);
+        return { ...rest, password: encPassword };
+      })
+    );
+
     const payload = {
       version: 1,
       exportedAt: new Date().toISOString(),
-      sites: sites.map((s) => {
-        // 去掉 UI 专用的 broken 标记
-        const { broken, ...rest } = s;
-        return rest;
-      }),
+      sites: encryptedSites,
     };
     const json = JSON.stringify(payload, null, 2);
     const blob = new Blob([json], { type: 'application/json' });
@@ -455,8 +464,21 @@
     btnConfirmDelete.textContent = '删除';
     confirmOverlay.classList.remove('active');
 
-    // 直接覆盖内存,saveSites 写入时再统一加密
-    sites = incoming.slice();
+    // 导入的密码可能是加密对象，需要先解密为明文（内存中保持明文便于编辑）
+    const decryptedSites = await Promise.all(
+      incoming.map(async (site) => {
+        try {
+          const plainPw = await self.AutoLoginCrypto.decryptPassword(site.password);
+          return { ...site, password: plainPw };
+        } catch (e) {
+          console.error('[Auto Login] 解密导入密码失败', site.url, e);
+          // 解密失败标记为 broken，让用户重新编辑
+          return { ...site, password: '', broken: true };
+        }
+      })
+    );
+
+    sites = decryptedSites;
     try {
       await saveSites();
       renderList();
@@ -467,6 +489,17 @@
   }
 
   // ========== Password Toggle ==========
+  function resetPasswordVisibility() {
+    const input = fields.password;
+    const eyeOpen = btnTogglePassword.querySelector('.eye-open');
+    const eyeClosed = btnTogglePassword.querySelector('.eye-closed');
+
+    // 重置为隐藏状态
+    input.type = 'password';
+    eyeOpen.style.display = 'block';
+    eyeClosed.style.display = 'none';
+  }
+
   function togglePasswordVisibility() {
     const input = fields.password;
     const eyeOpen = btnTogglePassword.querySelector('.eye-open');
