@@ -506,7 +506,7 @@
       createdAt: new Date().toISOString(),
     };
 
-    self.AutoLoginCrypto.encryptPassword(site.password).then(function (encPw) {
+    window.AutoLoginCrypto.encryptPassword(site.password).then(function (encPw) {
       var storedSite = Object.assign({}, site, { password: encPw });
       // 通过 background 统一写入,避免与 popup 并发 read-modify-write 时丢数据
       chrome.runtime.sendMessage({
@@ -624,7 +624,7 @@
           var username, password;
           try {
             username = site.username;
-            password = await self.AutoLoginCrypto.decryptPassword(site.password);
+            password = await window.AutoLoginCrypto.decryptPassword(site.password);
           } catch (e) {
             console.error('[Auto Login] Failed to decrypt password for site:', site.url, e);
             return;
