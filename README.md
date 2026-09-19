@@ -2,6 +2,16 @@
 
 Chrome 扩展 (Manifest V3)，自动填写登录表单并提交。配置一次，每次打开目标网址都自动登录。
 
+## 📦 最新 Release
+
+你可以直接从 [Releases](https://github.com/vee2046/webpage-autologin/releases/latest) 页面下载预打包好的扩展文件：
+
+1. 前往 [Releases](https://github.com/vee2046/webpage-autologin/releases/latest) 下载最新版本的 `webpage-autologin-v1.0.0.zip`。
+2. 将压缩包解压到本地文件夹。
+3. 打开 Chrome / Edge 浏览器，访问 `chrome://extensions/`。
+4. 开启右上角的 **开发者模式**。
+5. 点击 **加载已解压的扩展程序**，选择刚才解压出来的文件夹即可使用。
+
 ## 功能特性
 
 - **多站点配置** —— 在页面上以拖拽面板形式添加站点，弹窗里集中管理、启用/禁用、编辑、删除
